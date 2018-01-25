@@ -1,3 +1,19 @@
+# py-faster-rcnn python3 implementation
+ Gemfield made following changes based on the original py-faster-rcnn:
+ - Update caffe version to latest 1.0 (deleted the caffe submodule)
+ - python2 syntax to python3 syntax
+ - support numpy with version >= 1.12
+ - Add docker support (with opencv)
+
+To use the py-faster-rcnn docker, run with command
+
+  ```Shell
+  nvidia-docker run -it --rm \ 
+  -v YOUR_VOC_DATA:/opt/gemfield/py-faster-rcnn/data/VOCdevkit2007 \
+  -v YOUR_IMAGENET_MODEL:/opt/gemfield/py-faster-rcnn/data/imagenet_models \
+  gemfield/py-faster-rcnn bash
+  ```
+
 # py-faster-rcnn has been deprecated. Please see [Detectron](https://github.com/facebookresearch/Detectron), which includes an implementation of [Mask R-CNN](https://arxiv.org/abs/1703.06870).
 
 ### Disclaimer
