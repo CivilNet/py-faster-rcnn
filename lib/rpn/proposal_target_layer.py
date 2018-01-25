@@ -57,7 +57,7 @@ class ProposalTargetLayer(caffe.Layer):
 
         num_images = 1
         rois_per_image = cfg.TRAIN.BATCH_SIZE / num_images
-        fg_rois_per_image = np.round(cfg.TRAIN.FG_FRACTION * rois_per_image)
+        fg_rois_per_image = np.round(cfg.TRAIN.FG_FRACTION * rois_per_image).astype(int)
 
         # Sample rois with classification labels and bounding box regression
         # targets
@@ -66,14 +66,14 @@ class ProposalTargetLayer(caffe.Layer):
             rois_per_image, self._num_classes)
 
         if DEBUG:
-            print 'num fg: {}'.format((labels > 0).sum())
-            print 'num bg: {}'.format((labels == 0).sum())
+            print('num fg: {}'.format((labels > 0).sum()))
+            print('num bg: {}'.format((labels == 0).sum()))
             self._count += 1
             self._fg_num += (labels > 0).sum()
             self._bg_num += (labels == 0).sum()
-            print 'num fg avg: {}'.format(self._fg_num / self._count)
-            print 'num bg avg: {}'.format(self._bg_num / self._count)
-            print 'ratio: {:.3f}'.format(float(self._fg_num) / float(self._bg_num))
+            print('num fg avg: {}'.format(self._fg_num / self._count))
+            print('num bg avg: {}'.format(self._bg_num / self._count))
+            print('ratio: {:.3f}'.format(float(self._fg_num) / float(self._bg_num)))
 
         # sampled rois
         top[0].reshape(*rois.shape)
@@ -121,7 +121,8 @@ def _get_bbox_regression_labels(bbox_target_data, num_classes):
     bbox_inside_weights = np.zeros(bbox_targets.shape, dtype=np.float32)
     inds = np.where(clss > 0)[0]
     for ind in inds:
-        cls = clss[ind]
+        ind = int(ind)
+        cls = int(clss[ind])
         start = 4 * cls
         end = start + 4
         bbox_targets[ind, start:end] = bbox_target_data[ind, 1:]
@@ -174,7 +175,7 @@ def _sample_rois(all_rois, gt_boxes, fg_rois_per_image, rois_per_image, num_clas
     bg_rois_per_this_image = min(bg_rois_per_this_image, bg_inds.size)
     # Sample background regions without replacement
     if bg_inds.size > 0:
-        bg_inds = npr.choice(bg_inds, size=bg_rois_per_this_image, replace=False)
+        bg_inds = npr.choice(bg_inds, size=int(bg_rois_per_this_image), replace=False)
 
     # The indices that we're selecting (both fg and bg)
     keep_inds = np.append(fg_inds, bg_inds)

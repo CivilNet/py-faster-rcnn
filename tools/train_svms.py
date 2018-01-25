@@ -52,7 +52,7 @@ class SVMTrainer(object):
         roidb = self.imdb.roidb
         total_norm = 0.0
         count = 0.0
-        inds = npr.choice(xrange(self.imdb.num_images), size=num_images,
+        inds = npr.choice(range(self.imdb.num_images), size=num_images,
                           replace=False)
         for i_, i in enumerate(inds):
             im = cv2.imread(self.imdb.image_path_at(i))
@@ -72,12 +72,12 @@ class SVMTrainer(object):
     def _get_pos_counts(self):
         counts = np.zeros((len(self.imdb.classes)), dtype=np.int)
         roidb = self.imdb.roidb
-        for i in xrange(len(roidb)):
-            for j in xrange(1, self.imdb.num_classes):
+        for i in range(len(roidb)):
+            for j in range(1, self.imdb.num_classes):
                 I = np.where(roidb[i]['gt_classes'] == j)[0]
                 counts[j] += len(I)
 
-        for j in xrange(1, self.imdb.num_classes):
+        for j in range(1, self.imdb.num_classes):
             print('class {:s} has {:d} positives'.
                   format(self.imdb.classes[j], counts[j]))
 
@@ -85,14 +85,14 @@ class SVMTrainer(object):
 
     def get_pos_examples(self):
         counts = self._get_pos_counts()
-        for i in xrange(len(counts)):
+        for i in range(len(counts)):
             self.trainers[i].alloc_pos(counts[i])
 
         _t = Timer()
         roidb = self.imdb.roidb
         num_images = len(roidb)
         # num_images = 100
-        for i in xrange(num_images):
+        for i in range(num_images):
             im = cv2.imread(self.imdb.image_path_at(i))
             if roidb[i]['flipped']:
                 im = im[:, ::-1, :]
@@ -102,14 +102,14 @@ class SVMTrainer(object):
             scores, boxes = im_detect(self.net, im, gt_boxes)
             _t.toc()
             feat = self.net.blobs[self.layer].data
-            for j in xrange(1, self.imdb.num_classes):
+            for j in range(1, self.imdb.num_classes):
                 cls_inds = np.where(roidb[i]['gt_classes'][gt_inds] == j)[0]
                 if len(cls_inds) > 0:
                     cls_feat = feat[cls_inds, :]
                     self.trainers[j].append_pos(cls_feat)
 
-            print 'get_pos_examples: {:d}/{:d} {:.3f}s' \
-                  .format(i + 1, len(roidb), _t.average_time)
+            print('get_pos_examples: {:d}/{:d} {:.3f}s' \
+                  .format(i + 1, len(roidb), _t.average_time))
 
     def initialize_net(self):
         # Start all SVM parameters at zero
@@ -137,7 +137,7 @@ class SVMTrainer(object):
         roidb = self.imdb.roidb
         num_images = len(roidb)
         # num_images = 100
-        for i in xrange(num_images):
+        for i in range(num_images):
             im = cv2.imread(self.imdb.image_path_at(i))
             if roidb[i]['flipped']:
                 im = im[:, ::-1, :]
@@ -145,7 +145,7 @@ class SVMTrainer(object):
             scores, boxes = im_detect(self.net, im, roidb[i]['boxes'])
             _t.toc()
             feat = self.net.blobs[self.layer].data
-            for j in xrange(1, self.imdb.num_classes):
+            for j in range(1, self.imdb.num_classes):
                 hard_inds = \
                     np.where((scores[:, j] > self.hard_thresh) &
                              (roidb[i]['gt_overlaps'][:, j].toarray().ravel() <
@@ -185,7 +185,7 @@ class SVMTrainer(object):
 
         # One final SVM retraining for each class
         # Install SVMs into net
-        for j in xrange(1, self.imdb.num_classes):
+        for j in range(1, self.imdb.num_classes):
             new_w_b = self.trainers[j].append_neg_and_retrain(force=True)
             self.update_net(j, new_w_b[0], new_w_b[1])
 
@@ -338,16 +338,16 @@ if __name__ == '__main__':
     out_dir = os.path.dirname(args.caffemodel)
 
     imdb = get_imdb(args.imdb_name)
-    print 'Loaded dataset `{:s}` for training'.format(imdb.name)
+    print('Loaded dataset `{:s}` for training'.format(imdb.name))
 
     # enhance roidb to contain flipped examples
     if cfg.TRAIN.USE_FLIPPED:
-        print 'Appending horizontally-flipped training examples...'
+        print('Appending horizontally-flipped training examples...')
         imdb.append_flipped_images()
-        print 'done'
+        print('done')
 
     SVMTrainer(net, imdb).train()
 
     filename = '{}/{}.caffemodel'.format(out_dir, out)
     net.save(filename)
-    print 'Wrote svm model to: {:s}'.format(filename)
+    print('Wrote svm model to: {:s}'.format(filename))

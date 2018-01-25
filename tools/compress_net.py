@@ -76,7 +76,7 @@ def main():
     out_dir = os.path.dirname(args.caffemodel)
 
     # Compress fc6
-    if net_svd.params.has_key('fc6_L'):
+    if 'fc6_L' in net_svd.params:
         l_fc6 = net_svd.params['fc6_L'][0].data.shape[0]
         print('  fc6_L bottleneck size: {}'.format(l_fc6))
 
@@ -98,9 +98,9 @@ def main():
         out += '_fc6_{}'.format(l_fc6)
 
     # Compress fc7
-    if net_svd.params.has_key('fc7_L'):
+    if 'fc7_L' in net_svd.params:
         l_fc7 = net_svd.params['fc7_L'][0].data.shape[0]
-        print '  fc7_L bottleneck size: {}'.format(l_fc7)
+        print('  fc7_L bottleneck size: {}'.format(l_fc7))
 
         W_fc7 = net.params['fc7'][0].data
         B_fc7 = net.params['fc7'][1].data
@@ -119,7 +119,7 @@ def main():
 
     filename = '{}/{}.caffemodel'.format(out_dir, out)
     net_svd.save(filename)
-    print 'Wrote svd model to: {:s}'.format(filename)
+    print('Wrote svd model to: {:s}'.format(filename))
 
 if __name__ == '__main__':
     main()
